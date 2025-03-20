@@ -36,3 +36,9 @@ impl fmt::Display for FreeBlock {
         write!(f, "FreeBlock: start={}, size={}", self.start, self.size)
     }
 }
+
+// Trait MemoryBlock to be implemented by FreeBlock
+pub trait MemoryBlock {
+    fn get_start(&self) -> usize;
+    fn get_size(&self) -> usize;
+}
