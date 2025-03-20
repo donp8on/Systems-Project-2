@@ -5,6 +5,8 @@
 // implemented by AllocatedBlock and FreeBlock. This will be useful when implementing
 // MemoryManager.dump().
 
+use std::fmt;
+
 /// FreeBlock struct representing a block of memory that does not contain data.
 pub(crate) struct FreeBlock {
     start: usize,
@@ -25,5 +27,12 @@ impl FreeBlock {
     /// Returns the start field of the free block.
     pub(crate) fn get_start(&self) -> usize {
         self.start
+    }
+}
+
+// Implement Display for FreeBlock
+impl fmt::Display for FreeBlock {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "FreeBlock: start={}, size={}", self.start, self.size)
     }
 }

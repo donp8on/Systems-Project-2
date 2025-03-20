@@ -1,0 +1,4 @@
+git init - once at the beginning
+git add . - add all files to staging
+git commit -m "something" - commit all staged files
+git push - push all commited files
