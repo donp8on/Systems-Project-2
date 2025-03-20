@@ -47,3 +47,14 @@ impl AllocatedBlock {
         self.data_size
     }
 }
+
+// Implement Display for AllocatedBlock
+impl fmt::Display for AllocatedBlock {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "AllocatedBlock: start={}, size={}, id={}, data_size={}",
+            self.start, self.size, self.id, self.data_size
+        )
+    }
+}
