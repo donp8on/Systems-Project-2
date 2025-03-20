@@ -8,6 +8,9 @@
 /// AllocatedBlock is a handle to allocated memory by the memory manager. In this struct, size
 /// is the amount of blocks contained by the block while data_size corresponds to the amount of
 /// bytes occupied by the contained data. Additionally, each allocated block has an ID.
+
+use std::fmt;
+
 #[derive(Clone, Debug)]
 pub struct AllocatedBlock {
     start: usize,
