@@ -30,11 +30,14 @@ impl MemoryManager {
     // Function to set data in allocated memory blocks
     //
     // BS: Remember to update AllocatedBlock.data_size in this method.
+    // AP: I have updated the data_size in the AllocatedBlock struct.
     pub fn set(&mut self, id: usize, data: &[u8]) -> Result<(), String> {
         if let Some(block) = self.allocated_blocks.get_mut(&id) {
             if data.len() <= block.get_size() {
                 let end = block.get_start() + data.len();
                 self.memory[block.get_start()..end].copy_from_slice(data);
+                // Update the data_size to reflect the actual amount of data stored
+                block.set_data_size(data.len());
                 Ok(())
             } else {
                 Err(format!(
@@ -58,9 +61,6 @@ impl MemoryManager {
     // After you find a block, you remove it from MemoryManager.free_blocks and then add it back?
 
     // Function to insert data into allocated memory blocks using the buddy system
-    //
-    // BS: same as the note on allocate(). That aside, what's the difference between
-    // this and allocate()?
     pub fn insert(&mut self, data_size: usize) -> Result<usize, String> {
         let size = nearest_power_of_two(data_size);
         if let Some(index) = self
@@ -113,6 +113,33 @@ impl MemoryManager {
         }
     }
 
+    pub fn dump(&self) {
+        let mut all_blocks = vec![];
+
+        // Collect information from allocated blocks
+        for (&id, block) in &self.allocated_blocks {
+            let start = block.get_start();
+            let size = block.get_size();
+            let end = start + size - 1;
+            let data = block.get_data_size();
+            all_blocks.push(format!("0x{:04X} - 0x{:04X}: ALLOCATED (ID: {}) (Size: {} bytes) Data: {}", start, end, id, size, data));
+        }
+
+        // Collect information from free blocks
+        for block in &self.free_blocks {
+            let start = block.get_start();
+            let size = block.get_size();
+            let end = start + size - 1;
+            all_blocks.push(format!("0x{:04X} - 0x{:04X}: FREE (Size: {} bytes)", start, end, size));
+        }
+
+        // Sorting all blocks by start address for organized output
+        all_blocks.sort();
+        for block in all_blocks {
+            println!("{}", block);
+        }
+    }
+
     // Function to execute commands from the input file (.cmmd)
     pub fn execute_command(&mut self, command: &str) {
         let parts: Vec<&str> = command.split_whitespace().collect();
@@ -128,7 +155,7 @@ impl MemoryManager {
                 } else {
                     println!("INSERT error: No suitable block available");
                 }
-            }
+            },
             "READ" => {
                 if parts.len() > 1 {
                     let id_str = parts[1]; // Capture the ID as a string
@@ -155,6 +182,9 @@ impl MemoryManager {
                 } else {
                     println!("No ID provided for READ command.");
                 }
+            },
+            "DUMP" => {
+                self.dump();
             },
             _ => println!("Unknown command"),
         }

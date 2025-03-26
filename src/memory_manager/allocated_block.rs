@@ -8,6 +8,9 @@
 /// AllocatedBlock is a handle to allocated memory by the memory manager. In this struct, size
 /// is the amount of blocks contained by the block while data_size corresponds to the amount of
 /// bytes occupied by the contained data. Additionally, each allocated block has an ID.
+/// 
+/// AP: I added the MemoryBlock trait to AllocatedBlock. This trait has three methods: get_start(),
+/// get_size(), and get_id(). This trait is implemented by AllocatedBlock.
 
 use std::fmt;
 
@@ -48,6 +51,10 @@ impl AllocatedBlock {
     /// Returns the data_size field of the allocated block.
     pub(crate) fn get_data_size(&self) -> usize {
         self.data_size
+    }
+
+    pub(crate) fn set_data_size(&mut self, data_size: usize) {
+        self.data_size = data_size;
     }
 }
 
