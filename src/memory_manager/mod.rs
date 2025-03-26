@@ -2,6 +2,7 @@ use crate::*;
 use allocated_block::AllocatedBlock;
 use free_block::FreeBlock;
 use std::collections::HashMap;
+use allocated_block::DataMemoryBlock;
 
 mod allocated_block;
 mod free_block;
@@ -26,39 +27,6 @@ impl MemoryManager {
         }
     }
 
-    // Function to allocate memory blocks using a buddy system
-    //
-    // BS: this doesn't seem correct, but I may be misunderstanding. First,
-    // you're finding the correct size to allocate, then you're searching
-    // MemoryManager.free_blocks for a block that will fit. Up until here makes
-    // sense.
-    //
-    // After you find a block, you remove it from MemoryManager.free_blocks and then add it back?
-    pub fn allocate(&mut self, requested_size: usize) -> Result<usize, String> {
-        let size = nearest_power_of_two(requested_size);
-        if let Some(index) = self
-            .free_blocks
-            .iter()
-            .position(|block| block.get_size() >= size)
-        {
-            let block = self.free_blocks.remove(index);
-            if block.get_size() > size {
-                self.free_blocks.push(FreeBlock::new(
-                    block.get_start() + size,
-                    block.get_size() - size,
-                ));
-            }
-            let allocated_block =
-                AllocatedBlock::new(block.get_start(), size, self.next_id, requested_size);
-            self.allocated_blocks.insert(self.next_id, allocated_block);
-            let id = self.next_id;
-            self.next_id += 1;
-            Ok(id)
-        } else {
-            Err("No suitable block available".to_string())
-        }
-    }
-
     // Function to set data in allocated memory blocks
     //
     // BS: Remember to update AllocatedBlock.data_size in this method.
@@ -80,7 +48,16 @@ impl MemoryManager {
         }
     }
 
-    // Function to insert data into allocated memory blocks
+    // Function to allocate memory blocks using a buddy system
+    //
+    // BS: this doesn't seem correct, but I may be misunderstanding. First,
+    // you're finding the correct size to allocate, then you're searching
+    // MemoryManager.free_blocks for a block that will fit. Up until here makes
+    // sense.
+    //
+    // After you find a block, you remove it from MemoryManager.free_blocks and then add it back?
+
+    // Function to insert data into allocated memory blocks using the buddy system
     //
     // BS: same as the note on allocate(). That aside, what's the difference between
     // this and allocate()?
@@ -129,7 +106,7 @@ impl MemoryManager {
             // BS: Free blocks do not have IDs. Because of this, you never need to search the free_blocks
             // Vector.
             // if let Some(block) = self.free_blocks.iter().find(|&b| b.get_id() == id) {
-            Err(format!("Block with ID {} does not exist.", id))
+            Err(format!("Nothing at [{}]", id))
             /* } else {
                 Err(format!("Nothing at [{}]", id))
             } */
@@ -153,25 +130,32 @@ impl MemoryManager {
                 }
             }
             "READ" => {
-                let id = parts[1].parse::<usize>().expect("Invalid ID format");
-                match self.read(id) {
-                    Ok(data) => {
-                        // BS: self.read will return an AllocatedBlock. This will fill in most of
-                        // the fields below, but it will not directly give you the data. To fill in
-                        // the data, you'll need to read from MemoryManager.memory starting from
-                        // data.get_start() to data.get_start() + data.get_size().
-                        //
-                        // Also, this is not the correct format to print a memory block.
-                        println!(
-                            "READ data: Start Address: {}, End Address: {}, Status: {}, Size: {}, Data Length: {}",
-                            "data.0", "data.1", "data.2", "data.3", "data.4"
-                        );
+                if parts.len() > 1 {
+                    let id_str = parts[1]; // Capture the ID as a string
+                    match id_str.parse::<usize>() {
+                        Ok(id) => {
+                            match self.read(id) {
+                                Ok(block) => {
+                                    println!(
+                                        "READ data: ID: {}, Start Address: {}, End Address: {}, Size: {}, Data Length: {}",
+                                        block.get_id(),
+                                        block.get_start(),
+                                        block.get_end(),
+                                        block.get_size(),
+                                        block.get_data_size()
+                                    );
+                                },
+                                Err(e) => {
+                                    println!("Error reading block: {}", e);
+                                }
+                            }
+                        },
+                        Err(_) => println!("Invalid ID format provided.")
                     }
-                    Err(e) => {
-                        println!("Error: {}", e);
-                    }
+                } else {
+                    println!("No ID provided for READ command.");
                 }
-            }
+            },
             _ => println!("Unknown command"),
         }
     }

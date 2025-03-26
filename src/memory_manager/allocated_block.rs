@@ -61,3 +61,38 @@ impl fmt::Display for AllocatedBlock {
         )
     }
 }
+
+// Trait MemoryBlock to be implemented by AllocatedBlock
+pub trait MemoryBlock {
+    fn get_start(&self) -> usize;
+    fn get_size(&self) -> usize;
+    fn get_id(&self) -> usize;
+}
+
+impl MemoryBlock for AllocatedBlock {
+    fn get_start(&self) -> usize {
+        self.start
+    }
+
+    fn get_size(&self) -> usize {
+        self.size
+    }
+
+    fn get_id(&self) -> usize {
+        self.id    
+    }
+}
+
+pub trait DataMemoryBlock: MemoryBlock {
+    fn get_data_size(&self) -> usize;
+    fn get_end(&self) -> usize;
+}
+
+impl DataMemoryBlock for AllocatedBlock {
+    fn get_data_size(&self) -> usize {
+        self.data_size
+    }
+    fn get_end(&self) -> usize {
+        self.start + self.data_size - 1
+    }
+}
