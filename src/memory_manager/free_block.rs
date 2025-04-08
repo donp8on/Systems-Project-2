@@ -8,25 +8,25 @@
 use std::fmt;
 
 /// FreeBlock struct representing a block of memory that does not contain data.
+#[derive(Debug)]
 pub(crate) struct FreeBlock {
-    start: usize,
-    size: usize,
+    pub start: usize,
+    pub size: usize,
+    pub is_free: bool,
 }
 
 impl FreeBlock {
     /// Creates a new FreeBlock with the specified start position and size.
     pub(crate) fn new(start: usize, size: usize) -> Self {
-        FreeBlock { start, size }
+        FreeBlock { start, size, is_free: true }
     }
 
+    pub fn get_start(&self) -> usize {
+        self.start
+    }
     /// Returns the size field of the free block.
     pub(crate) fn get_size(&self) -> usize {
         self.size
-    }
-
-    /// Returns the start field of the free block.
-    pub(crate) fn get_start(&self) -> usize {
-        self.start
     }
 }
 

@@ -16,10 +16,11 @@ use std::fmt;
 
 #[derive(Clone, Debug)]
 pub struct AllocatedBlock {
-    start: usize,
-    size: usize,
-    id: usize,
-    data_size: usize,
+    pub start: usize,
+    pub size: usize,
+    pub id: usize,
+    pub data_size: usize,
+    pub data: Vec<u8>,
 }
 
 impl AllocatedBlock {
@@ -30,7 +31,12 @@ impl AllocatedBlock {
             size,
             id,
             data_size,
+            data: vec![0; data_size],
         }
+    }
+    
+    pub fn clear_data(&mut self) {
+        self.data.clear();
     }
 
     /// Returns the size field of the allocated block.
@@ -55,6 +61,10 @@ impl AllocatedBlock {
 
     pub(crate) fn set_data_size(&mut self, data_size: usize) {
         self.data_size = data_size;
+    }
+
+    pub fn get_data(&self) -> &[u8] {
+        &self.data
     }
 }
 
