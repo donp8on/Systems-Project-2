@@ -1,5 +1,4 @@
-
-// memory_block.rs
+/// MemoryBlock struct to represent a block of memory in the memory manager
 #[derive(Clone, Debug)]
 pub struct MemoryBlock {
     pub start: usize,
@@ -8,6 +7,8 @@ pub struct MemoryBlock {
     pub data: Vec<u8>,
 }
 
+/// Implement MemoryBlock struct
+/// This struct represents a block of memory in the memory manager.
 impl MemoryBlock {
     pub fn new(start: usize, size: usize) -> Self {
         MemoryBlock {

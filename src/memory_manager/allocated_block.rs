@@ -1,19 +1,7 @@
-// BS: Consider adding implementing Display for AllocatedBlock. This will make printing
-// AllocatedBlocks easier becasue you'll be able to do: `println!("{}", allocated_block)`. However,
-// you'll still need to print the data contained by the AllocatedBlock.
-//
-// Consider creating a trait called `MemoryBlock` (or something similar) to be implemented
-// by AllocatedBlock and FreeBlock. This will be useful when implementing MemoryManager.dump().
-
+use std::fmt;
 /// AllocatedBlock is a handle to allocated memory by the memory manager. In this struct, size
 /// is the amount of blocks contained by the block while data_size corresponds to the amount of
 /// bytes occupied by the contained data. Additionally, each allocated block has an ID.
-/// 
-/// AP: I added the MemoryBlock trait to AllocatedBlock. This trait has three methods: get_start(),
-/// get_size(), and get_id(). This trait is implemented by AllocatedBlock.
-
-use std::fmt;
-
 #[derive(Clone, Debug)]
 pub struct AllocatedBlock {
     pub start: usize,
@@ -23,6 +11,9 @@ pub struct AllocatedBlock {
     pub data: Vec<u8>,
 }
 
+/// Implement AllocatedBlock struct
+/// This struct represents a block of memory that has been allocated by the memory manager.
+/// It contains information about the start position, size, ID, and the data contained in the block.
 impl AllocatedBlock {
     /// Creates a new allocated block with the specified start position, size, ID, and data size.
     pub(crate) fn new(start: usize, size: usize, id: usize, data_size: usize) -> Self {
@@ -68,7 +59,7 @@ impl AllocatedBlock {
     }
 }
 
-// Implement Display for AllocatedBlock
+/// Implement Display for AllocatedBlock
 impl fmt::Display for AllocatedBlock {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -79,13 +70,15 @@ impl fmt::Display for AllocatedBlock {
     }
 }
 
-// Trait MemoryBlock to be implemented by AllocatedBlock
+/// Trait MemoryBlock to be implemented by AllocatedBlock
 pub trait MemoryBlock {
     fn get_start(&self) -> usize;
     fn get_size(&self) -> usize;
     fn get_id(&self) -> usize;
 }
 
+/// Implement MemoryBlock trait for AllocatedBlock
+/// This allows AllocatedBlock to be treated as a generic memory block.
 impl MemoryBlock for AllocatedBlock {
     fn get_start(&self) -> usize {
         self.start
@@ -100,11 +93,15 @@ impl MemoryBlock for AllocatedBlock {
     }
 }
 
+/// DataMemoryBlock trait to be implemented by AllocatedBlock
+/// This trait provides additional functionality for memory blocks that contain data.
 pub trait DataMemoryBlock: MemoryBlock {
     fn get_data_size(&self) -> usize;
     fn get_end(&self) -> usize;
 }
 
+/// Implement DataMemoryBlock trait for AllocatedBlock
+/// This allows AllocatedBlock to be treated as a data memory block.
 impl DataMemoryBlock for AllocatedBlock {
     fn get_data_size(&self) -> usize {
         self.data_size

@@ -12,7 +12,7 @@ use allocated_block::DataMemoryBlock;
 
 
 
-// Define the MemoryManager struct
+/// Define the MemoryManager struct
 pub struct MemoryManager {
     memory: [u8; 65535],
     free_blocks: Vec<FreeBlock>, // Using Vec to manage free blocks
@@ -20,6 +20,8 @@ pub struct MemoryManager {
     next_id: usize,
 }
 
+/// MemoryManager struct to manage memory allocation and deallocation
+/// It contains a memory array, a vector of free blocks, a hashmap of allocated blocks, and an ID counter.
 impl MemoryManager {
     pub fn new() -> MemoryManager {
         MemoryManager {
@@ -30,10 +32,8 @@ impl MemoryManager {
         }
     }
 
-    // Function to set data in allocated memory blocks
-    //
-    // BS: Remember to update AllocatedBlock.data_size in this method.
-    // AP: I have updated the data_size in the AllocatedBlock struct.
+    /// Function to set data in a memory block
+    /// This function will check if the block ID exists and if the data fits in the block size
     pub fn set(&mut self, id: usize, data: &[u8]) -> Result<(), String> {
         if let Some(block) = self.allocated_blocks.get_mut(&id) {
             if data.len() <= block.size {
@@ -50,22 +50,14 @@ impl MemoryManager {
             Err("Block ID not found".to_string())
         }
     }
-    
-    
-    // Function to allocate memory blocks using a buddy system
-    //
-    // BS: this doesn't seem correct, but I may be misunderstanding. First,
-    // you're finding the correct size to allocate, then you're searching
-    // MemoryManager.free_blocks for a block that will fit. Up until here makes
-    // sense.
-    //
-    // After you find a block, you remove it from MemoryManager.free_blocks and then add it back?
 
-    // This function uses 'allocate' to get a block and then inserts data into it
+    /// This function uses 'allocate' to get a block and then inserts data into it
+    /// It returns the ID of the allocated block or an error message
+    /// It will also check if the data fits in the block size and update the data size accordingly
     pub fn insert(&mut self, data_size: usize) -> Result<usize, String> {
         let required_size = data_size.next_power_of_two();
     
-        // Step 1: Find the first block that is large enough
+        // Find the first block that is large enough
         let mut best_index = None;
         for (i, block) in self.free_blocks.iter().enumerate() {
             if block.is_free && block.size >= required_size {
@@ -77,7 +69,7 @@ impl MemoryManager {
         if let Some(index) = best_index {
             let mut block = self.free_blocks.remove(index);
     
-            // Step 2: Split until size matches
+            // Split until size matches
             while block.size > required_size {
                 let half_size = block.size / 2;
                 let right_block = FreeBlock::new(block.start + half_size, half_size);
@@ -95,7 +87,8 @@ impl MemoryManager {
         }
     }
 
-    //function to read and return data and from allocated memory blocks
+    /// Function to read data from a memory block
+    /// This function will check if the block ID exists and return the block details
     pub fn read(&self, id: usize) -> Result<AllocatedBlock, String> {
         if let Some(block) = self.allocated_blocks.get(&id) {
             let start_addr = block.get_start();
@@ -108,18 +101,13 @@ impl MemoryManager {
             Ok(AllocatedBlock::new(start_addr, end_addr, size, data_length))
         } else {
             // Check if it's a free block, otherwise return error about missing block
-            //
-            // BS: Free blocks do not have IDs. Because of this, you never need to search the free_blocks
-            // Vector.
-            // if let Some(block) = self.free_blocks.iter().find(|&b| b.get_id() == id) {
             Err(format!("Nothing at [{}]", id))
-            /* } else {
-                Err(format!("Nothing at [{}]", id))
-            } */
         }
     }
     
-    // Function to read data from the memory manager and format it for output
+    /// Function to read data from the memory manager and format it for output
+    /// This function will check if the block ID exists and return the formatted string
+    /// It will also include the start and end addresses, status, size, and data
     pub fn read_formatted(&self, id: usize) -> Result<String, String> {
         if let Some(block) = self.allocated_blocks.get(&id) {
             let data_slice = &self.memory[block.start..block.start + block.data_size];
@@ -133,7 +121,8 @@ impl MemoryManager {
         }
     }
     
-
+    /// Function to allocate a block of memory
+    /// This function will find the best fitting free block, split it if necessary, and return the ID of the allocated block
     pub fn allocate(&mut self, requested_size: usize) -> Result<usize, String> {
         let required_size = requested_size.next_power_of_two();
         let mut best_index = None;
@@ -166,9 +155,9 @@ impl MemoryManager {
     }
     
     
-    // Function to delete a block by ID
-    // This function will remove the block from the allocated_blocks and add it back to the free_blocks
-    // It will also merge adjacent free blocks if necessary
+    /// Function to delete a block by ID
+    /// This function will remove the block from the allocated_blocks and add it back to the free_blocks
+    /// It will also merge adjacent free blocks if necessary
     pub fn delete(&mut self, id: usize) -> Result<(), String> {
         // Attempt to find and remove the allocated block
         if let Some(block) = self.allocated_blocks.remove(&id) {
@@ -182,7 +171,9 @@ impl MemoryManager {
         }
     }
 
-
+    /// Function to merge adjacent free blocks
+    /// This function will iterate through the free_blocks and merge them if they are adjacent and of the same size
+    /// It will also sort the free blocks by start address for consistent traversal
     pub fn merge_free_blocks(&mut self) {
         let mut changed = true;
     
@@ -235,13 +226,9 @@ impl MemoryManager {
         }
     }
     
-    
-    
-    
-
-    // Function to update data in an allocated block
-    // This function will check if the new data fits in the existing block or if it needs to be reallocated
-    // If it needs to be reallocated, it will allocate a new block and copy the data over
+    /// Function to update data in an allocated block
+    /// This function will check if the new data fits in the existing block or if it needs to be reallocated
+    /// If it needs to be reallocated, it will allocate a new block and copy the data over
     pub fn update(&mut self, id: usize, new_data: &[u8]) -> Result<(), String> {
         println!("Updating ID: {}, New Data: {:?}", id, String::from_utf8_lossy(new_data));
     
@@ -281,10 +268,8 @@ impl MemoryManager {
         }
     }
     
-    
-    
-
-    
+    /// Function to dump the memory manager's state
+    /// This function will print the details of allocated and free blocks in a formatted manner
     pub fn dump(&self) {
         let mut allocated = Vec::new();
         let mut free_blocks = Vec::new();
@@ -330,7 +315,9 @@ impl MemoryManager {
     
     
 
-    // Function to execute commands from the input file (.cmmd)
+    /// Function to execute commands from the input file (.cmmd)
+    /// This function will parse the command and call the appropriate function
+    /// It will also handle the command format and print the results
     pub fn execute_command(&mut self, command: &str) {
         let command = command.to_uppercase();
         // Trim the command and remove the trailing semicolon if present

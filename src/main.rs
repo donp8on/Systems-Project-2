@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};  
 
 
-// Main function to read commands from a file and execute them
+/// Main function to read commands from a file and execute them
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() != 2 {
