@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 pub mod memory_manager;
 
-// Function to parse data from the command line input file
+/// Function to parse data from the command line input file
 pub fn parse_data(data: &str) -> Vec<u8> {
     if data.starts_with("0x") || data.starts_with("0X") {
         // Explicitly specify the type to collect to Vec<u8>
@@ -16,7 +16,7 @@ pub fn parse_data(data: &str) -> Vec<u8> {
     }
 }
 
-// Function to find the nearest power of two for a given size
+/// Function to find the nearest power of two for a given size
 pub fn nearest_power_of_two(size: usize) -> usize {
     let mut n = size - 1;
     n |= n >> 1;

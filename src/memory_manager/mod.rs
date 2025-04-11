@@ -1,9 +1,9 @@
 use crate::*;
 use std::collections::HashMap;
 
-mod allocated_block;
-mod free_block;
-mod memory_block;
+pub mod allocated_block;
+pub mod free_block;
+pub mod memory_block;
 
 use memory_block::MemoryBlock;
 use allocated_block::AllocatedBlock;
@@ -55,6 +55,10 @@ impl MemoryManager {
     /// It returns the ID of the allocated block or an error message
     /// It will also check if the data fits in the block size and update the data size accordingly
     pub fn insert(&mut self, data_size: usize) -> Result<usize, String> {
+        // Check if the data size is zero
+        if data_size == 0 {
+            return Err("Cannot insert zero-sized block".to_string()); // If zero, return an error
+        }
         let required_size = data_size.next_power_of_two();
     
         // Find the first block that is large enough
