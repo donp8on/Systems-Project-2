@@ -8,7 +8,7 @@
 use std::fmt;
 
 /// FreeBlock struct representing a block of memory that does not contain data.
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub(crate) struct FreeBlock {
     pub start: usize,
     pub size: usize,
